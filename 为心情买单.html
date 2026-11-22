@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>为心情买单 · 大学生情绪消费观察</title>
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+/* ===== 基础变量 ===== */
+:root{
+  --paper:#F4EFE4;
+  --paper-deep:#EAE2D3;
+  --ink:#1B1B19;
+  --ink-soft:#4A4842;
+  --ink-light:#8A857A;
+  --red:#C0442F;
+  --green:#2F4A41;
+  --blue:#4B5378;
+  --line:rgba(27,27,25,.16);
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"Courier New",Courier,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-weight:400;
+  line-height:1.85;
+  letter-spacing:.02em;
+  overflow-x:hidden;
+}
+/* 纸张颗粒 */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+/* 滚动进度 */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--red);z-index:100;transition:width .1s linear}
+
+.shell{max-width:560px;margin:0 auto;position:relative;background:var(--paper);box-shadow:0 0 0 1px var(--line)}
+
+/* 桌面端外框装饰 */
+@media(min-width:900px){
+  body{background:#E7DFD0}
+  .shell{margin:40px auto;box-shadow:0 0 0 1px var(--line),0 24px 70px rgba(27,27,25,.12)}
+  #rail{position:fixed;right:32px;top:50%;transform:translateY(-50%);z-index:50;
+    display:flex;flex-direction:column;gap:16px}
+  #rail i{display:block;width:6px;height:6px;border-radius:50%;background:var(--ink-light);opacity:.5;
+    cursor:pointer;transition:.3s}
+  #rail i.on{opacity:1;background:var(--red);transform:scale(1.5)}
+}
+@media(max-width:899px){#rail{display:none}}
+
+/* ===== 通用排版 ===== */
+.sec{padding:56px 26px 60px;border-top:1px solid var(--line);position:relative}
+.eyebrow{font-size:11px;letter-spacing:.22em;color:var(--ink-light);font-weight:500;
+  display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.eyebrow::before{content:"";width:16px;height:1px;background:var(--red)}
+.h2{font-family:var(--serif);font-size:27px;font-weight:700;line-height:1.4;letter-spacing:.01em;margin-bottom:16px}
+.h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:26px 0 10px}
+p{font-size:15px;color:var(--ink-soft);margin-bottom:14px}
+p strong{color:var(--ink);font-weight:600}
+.lead{font-size:16px;color:var(--ink);line-height:1.9}
+.quote{font-family:var(--serif);font-size:17px;line-height:1.85;color:var(--ink);padding-left:16px;
+  border-left:2px solid var(--red);margin:18px 0}
+.note{font-size:12px;color:var(--ink-light);line-height:1.7;margin-top:14px}
+
+/* 数字强调 */
+.big{font-family:var(--serif);font-size:44px;line-height:1.1;font-weight:900;letter-spacing:-.02em}
+
+/* ===== 封面 ===== */
+.hero{position:relative;height:100svh;min-height:600px;overflow:hidden;display:flex;flex-direction:column;
+  justify-content:flex-end;padding:0 26px 60px}
+.hero-img{position:absolute;inset:0;
+  background:url("assets/cover.jpg") center/cover no-repeat;
+  filter:grayscale(.25) contrast(.95) brightness(1.02)}
+.hero-img::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(244,239,228,.80) 0%,rgba(244,239,228,.33) 30%,rgba(244,239,228,.82) 72%,var(--paper) 100%)}
+.hero-inner{position:relative;z-index:2}
+.hero-tag{font-size:11px;letter-spacing:.24em;color:var(--red);font-weight:500;margin-bottom:14px}
+.hero h1{font-family:var(--serif);font-weight:900;font-size:58px;line-height:1.08;letter-spacing:.02em;
+  margin-bottom:12px}
+.hero h1 span{display:block;font-size:28px;font-weight:600;letter-spacing:.06em;color:var(--ink-soft);margin-top:10px}
+.hero-sub{font-size:14px;color:var(--ink-soft);line-height:1.9;margin-top:22px;max-width:340px}
+.hero-meta{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;letter-spacing:.12em;color:var(--ink-light)}
+.hint{position:absolute;right:18px;bottom:0;display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-size:10px;color:var(--ink-light);letter-spacing:.08em}
+.hint i{width:1px;height:26px;background:var(--ink-light);animation:down 1.8s infinite}
+@keyframes down{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}
+  100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ===== 01 缘起 ===== */
+.bignum{display:flex;align-items:baseline;gap:14px;margin:8px 0 22px}
+.bignum em{font-style:normal;font-size:13px;color:var(--ink-light);letter-spacing:.1em}
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin:22px 0;border:1px solid var(--line)}
+.def-grid div{background:var(--paper);padding:16px 14px}
+.def-grid b{display:block;font-family:var(--serif);font-size:15px;margin-bottom:4px}
+.def-grid small{font-size:12px;color:var(--ink-light);line-height:1.6}
+.contrast{margin-top:26px;padding:20px;background:var(--paper-deep);border-left:3px solid var(--green)}
+.contrast .t{font-family:var(--serif);font-size:16px;font-weight:600;margin-bottom:8px}
+.contrast p{font-size:13.5px;margin:0;color:var(--ink-soft)}
+
+/* ===== 02 三类 ===== */
+.tabs{display:flex;gap:0;margin:20px -4px 24px;border-bottom:1px solid var(--line)}
+.tab{flex:1;background:none;border:0;font-family:var(--sans);font-size:12px;color:var(--ink-light);
+  padding:12px 4px 14px;cursor:pointer;position:relative;letter-spacing:.04em;line-height:1.4}
+.tab.on{color:var(--ink);font-weight:600}
+.tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--red)}
+
+.card{animation:fade .45s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card img{width:100%;display:block;border:1px solid var(--line);filter:none}
+.cap{font-size:11px;color:var(--ink-light);margin-top:8px;letter-spacing:.04em}
+.kv{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0}
+.kv span{font-size:11.5px;padding:5px 10px;border:1px solid var(--line);color:var(--ink-soft);border-radius:2px}
+.kv span.hi{border-color:var(--red);color:var(--red)}
+.person{margin-top:20px;padding:16px 18px;border:1px solid var(--ink);background:#FBF7EC}
+.person .nm{font-family:var(--serif);font-size:15px;font-weight:600;margin-bottom:6px}
+.person p{font-size:13.5px;margin:0;line-height:1.8}
+
+/* ===== 03 账单 ===== */
+.receipt{background:#FDFAF2;border:1px dashed rgba(27,27,25,.35);padding:20px 18px;margin:20px 0;
+  font-family:var(--mono);position:relative}
+.receipt::before,.receipt::after{content:"";position:absolute;left:0;right:0;height:6px;
+  background:repeating-linear-gradient(90deg,transparent 0 6px,var(--paper) 6px 12px);}
+.receipt::before{top:-4px}.receipt::after{bottom:-4px}
+.rc-head{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-light);
+  padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:10px;letter-spacing:.06em}
+.rc-row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--ink-soft);
+  padding:7px 0;border-bottom:1px dotted rgba(27,27,25,.14);align-items:baseline}
+.rc-row .l{flex:1}
+.rc-row .r{white-space:nowrap;font-weight:700;color:var(--ink)}
+.rc-total{display:flex;justify-content:space-between;margin-top:12px;font-size:13px;font-weight:700;color:var(--red)}
+.rc-foot{font-size:11px;color:var(--ink-light);margin-top:10px;line-height:1.7}
+.toggleall{display:inline-block;font-size:12px;color:var(--ink);border-bottom:1px solid var(--ink);
+  cursor:pointer;margin-top:4px;padding-bottom:1px}
+
+/* ===== 04 情绪计量 ===== */
+.meter{margin:22px 0 6px;padding:22px 18px 18px;border:1px solid var(--line);background:#FBF7EC}
+.meter-tab{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.mt{font-size:12px;padding:6px 12px;border:1px solid var(--line);background:none;cursor:pointer;
+  font-family:var(--sans);color:var(--ink-soft);border-radius:2px;transition:.25s}
+.mt.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chart{display:flex;align-items:flex-end;justify-content:space-around;height:190px;
+  padding-top:26px;border-bottom:1px solid var(--line);position:relative}
+.chart .grid{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
+.chart .grid i{position:absolute;left:0;right:0;height:1px;background:rgba(27,27,25,.07)}
+.col{position:relative;width:26%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.col .bar{width:100%;background:var(--ink);transition:height .7s cubic-bezier(.2,.9,.2,1);position:relative}
+.col .bar.b2{background:var(--red)}
+.col .bar.b3{background:var(--green);opacity:.85}
+.col .val{position:absolute;top:-22px;left:0;right:0;text-align:center;font-family:var(--serif);
+  font-size:13px;font-weight:700}
+.stage-lb{display:flex;justify-content:space-around;margin-top:8px}
+.stage-lb span{width:26%;text-align:center;font-size:11px;color:var(--ink-light);letter-spacing:.04em}
+.takeaway{margin-top:18px;font-size:13px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:12px}
+.takeaway b{color:var(--ink)}
+
+/* ===== 05 对照 ===== */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+.vs > div{padding:16px 14px;border:1px solid var(--line);background:#FBF7EC}
+.vs .tag{display:inline-block;font-size:10.5px;letter-spacing:.14em;padding:3px 8px;margin-bottom:10px;
+  border:1px solid currentColor}
+.vs-a .tag{color:var(--green)} .vs-b .tag{color:var(--red)}
+.vs ul{list-style:none}
+.vs li{font-size:12.8px;line-height:1.7;color:var(--ink-soft);padding-left:12px;position:relative;margin-bottom:9px}
+.vs li::before{content:"—";position:absolute;left:0;color:var(--ink-light)}
+.vs .q{font-family:var(--serif);font-size:12.8px;color:var(--ink);line-height:1.7;
+  border-top:1px dotted var(--line);padding-top:10px;margin-top:6px}
+
+/* ===== 06 循环 ===== */
+.loopbox{margin:24px 0;padding:26px 18px;background:var(--ink);color:var(--paper);position:relative;overflow:hidden}
+.loop{display:flex;justify-content:space-between;align-items:center;gap:6px;position:relative}
+.loop .node{flex:1;text-align:center;font-family:var(--serif);font-size:13px;line-height:1.5;position:relative;z-index:2}
+.loop .node em{display:block;font-style:normal;font-size:10px;letter-spacing:.14em;opacity:.55;margin-bottom:6px}
+.loop .arrow{color:rgba(244,239,228,.45);font-size:14px;flex:0 0 auto}
+.loop-ring{position:absolute;inset:-40px;border:1px dashed rgba(244,239,228,.2);border-radius:50%;
+  animation:spin 22s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loopbox p{color:rgba(244,239,228,.72);font-size:13px;margin-top:20px;margin-bottom:0}
+.loopbox p b{color:#F4EFE4}
+
+/* ===== 07 投票 ===== */
+.poll{margin:22px 0 6px}
+.opt{display:block;width:100%;text-align:left;background:none;border:1px solid var(--line);
+  padding:12px 14px;margin-bottom:8px;font-family:var(--sans);font-size:13.5px;color:var(--ink);
+  cursor:pointer;position:relative;overflow:hidden;transition:.2s}
+.opt:hover{border-color:var(--ink)}
+.opt .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(192,68,47,.12);transition:width .8s cubic-bezier(.2,.9,.2,1)}
+.opt span{position:relative;z-index:2}
+.opt .pct{float:right;font-family:var(--serif);font-weight:700;color:var(--red);opacity:0;transition:.4s}
+.opt.done .pct{opacity:1}
+.opt.mine{border-color:var(--red)}
+.poll-tip{font-size:12px;color:var(--ink-light);line-height:1.7;margin-top:10px}
+
+/* ===== 08 结尾 ===== */
+.end{padding:70px 26px 50px;border-top:1px solid var(--line);background:var(--paper-deep)}
+.end .big-q{font-family:var(--serif);font-size:22px;line-height:1.7;font-weight:600;margin-bottom:20px}
+.end .by{font-size:12px;color:var(--ink-light);letter-spacing:.1em;text-align:right;margin-top:24px}
+.method{margin-top:34px;padding-top:18px;border-top:1px solid var(--line)}
+.method .h4{font-size:11px;letter-spacing:.18em;color:var(--ink-light);margin-bottom:10px}
+.method p{font-size:11.5px;line-height:1.9;color:var(--ink-light);margin-bottom:8px}
+
+/* ===== 滚动显现 ===== */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="rail">
+  <i data-t="hero" class="on"></i><i data-t="s1"></i><i data-t="s2"></i><i data-t="s3"></i>
+  <i data-t="s4"></i><i data-t="s5"></i><i data-t="s6"></i><i data-t="s7"></i><i data-t="s8"></i>
+</div>
+
+<div class="shell">
+
+<!-- ===== 封面 ===== -->
+<section class="hero" id="hero">
+  <div class="hero-img"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">创新新闻报道 · 校园田野观察</div>
+    <h1>为心情买单<span>大学生情绪消费观察</span></h1>
+    <p class="hero-sub">不评判对错，只记录一个问题：<br>花出去的钱，买得到情绪慰藉吗？</p>
+    <div class="hero-meta">
+      <div>上海外国语大学贤达经济人文学院<br>新闻学专业 · 深度报道小组</div>
+      <div style="flex:0 0 auto;width:56px"></div>
+    </div>
+    <div class="hint"><span>向下滑动</span><i></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 01 缘起 ===== -->
+<section class="sec" id="s1">
+  <div class="eyebrow">01 缘起</div>
+  <div class="reveal">
+    <div class="bignum"><span class="big">18</span><em>元，一杯奶茶的价格<br>也是一次心情的止损</em></div>
+    <p class="lead">十一月的第一个降温夜，我在宿舍楼下看见一个女生拎着两杯奶茶上楼，一杯给自己，一杯留给室友。她说：“总得有点什么，把这一天结束掉。”</p>
+    <p>这句话被我记在采访本的第一页。它不解释压力，也不解释消费，只是把两件事连在了一起——<strong>情绪需要一个出口，而出口刚好标着价格</strong>。</p>
+    <p>当代大学生花钱，越来越不只看“功能性价比”。同样二十块，一件 T 恤可能放进衣柜三年不穿，一杯奶茶却能立刻换来半小时的好心情。这种为情绪、为心情、为“感觉对”而发生的支付，被称作<strong>情绪消费</strong>。</p>
+  </div>
+
+  <div class="reveal">
+    <div class="h3">情绪消费不等于解压消费</div>
+    <p>报道开始前，我们差点把它做成了“解压经济学”。但越采访越发现：缓解焦虑只是其中一种，更多的钱，花在别的地方。</p>
+    <div class="def-grid">
+      <div><b>压力补偿</b><small>疲惫、焦虑之后的即时抚慰</small></div>
+      <div><b>孤独慰藉</b><small>一个人时的陪伴感与"被照顾"</small></div>
+      <div><b>自我奖励</b><small>犒劳努力、庆祝一个小小的完成</small></div>
+      <div><b>圈层认同</b><small>用同款物件确认"我和他们是一伙的"</small></div>
+    </div>
+    <div class="contrast">
+      <div class="t">所以，我们把范围收窄了</div>
+      <p>不做“解压消费大全”，不铺 SPA、塔罗占卜这类校外高成本项目。只盯校园里最高频、最好拍、最能讲出故事的三类情绪消费，把每一类挖深。范围：本校为主，辐射周边两所高校的校园与校园商圈。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 三类 ===== -->
+<section class="sec" id="s2">
+  <div class="eyebrow">02 三类钱，三种心情</div>
+  <div class="reveal">
+    <h2 class="h2">同样是“为心情花钱”，<br>他们买的其实不是同一样东西</h2>
+    <p>我们按动机把校园里的情绪消费切成三块。点击切换，看每一类的钱花在哪、情绪要的是什么。</p>
+  </div>
+
+  <div class="tabs reveal">
+    <button class="tab on" data-k="a">① 即时补偿型</button>
+    <button class="tab" data-k="b">② 身份认同型</button>
+    <button class="tab" data-k="c">③ 仪式奖励型</button>
+  </div>
+
+  <div id="cards" class="reveal"></div>
+
+  <p class="note">说明：三类均取自校园真实可落地场景，单价 10—600 元区间。SPA、塔罗占卜、医美等校外高成本项目未列入实拍主线，仅在片尾作为外延现象以文字提及。</p>
+</section>
+
+<!-- ===== 03 账单 ===== -->
+<section class="sec" id="s3">
+  <div class="eyebrow">03 账单视角</div>
+  <div class="reveal">
+    <h2 class="h2">钱花在哪里，<br>情绪就记在哪里</h2>
+    <p>我们不问“你一个月花多少”，而是请受访者打开手机账单，一笔一笔念出来。数字比感受诚实。</p>
+  </div>
+
+  <div class="reveal">
+    <div class="receipt" data-rc="lin">
+      <div class="rc-head"><span>11 月 · 小林（大二 · 化名）</span><span>生活费 2,000 元</span></div>
+      <div class="rc-row"><span class="l">奶茶（12 次）</span><span class="r">216.00</span></div>
+      <div class="rc-row"><span class="l">零食补给</span><span class="r">48.00</span></div>
+      <div class="rc-row"><span class="l">香薰挂件</span><span class="r">29.00</span></div>
+      <div class="rc-total"><span>情绪消费合计</span><span>293.00</span></div>
+      <div class="rc-foot">占月生活费 14.7%。她说：“这 293 块，是我这个月唯一没算过性价比的支出。”</div>
+    </div>
+
+    <div class="receipt" data-rc="zhe">
+      <div class="rc-head"><span>11 月 · 阿哲（大三 · 化名）</span><span>生活费 2,200 元</span></div>
+      <div class="rc-row"><span class="l">盲盒 ×2</span><span class="r">118.00</span></div>
+      <div class="rc-row"><span class="l">吧唧 ×3</span><span class="r">96.00</span></div>
+      <div class="rc-row"><span class="l">二手亚克力立牌</span><span class="r">45.00</span></div>
+      <div class="rc-total"><span>情绪消费合计</span><span>259.00</span></div>
+      <div class="rc-foot">占月生活费 11.8%。他有一笔“隐藏账单”：去年一个限定款花了 680 元，没敢告诉家里。</div>
+    </div>
+
+    <div class="receipt" data-rc="zhou">
+      <div class="rc-head"><span>11 月 · 小舟（大四 · 化名）</span><span>生活费 2,600 元</span></div>
+      <div class="rc-row"><span class="l">脱口秀门票 ×1</span><span class="r">168.00</span></div>
+      <div class="rc-row"><span class="l">手作 DIY · 陶杯</span><span class="r">128.00</span></div>
+      <div class="rc-row"><span class="l">视频平台会员</span><span class="r">25.00</span></div>
+      <div class="rc-total"><span>情绪消费合计</span><span>321.00</span></div>
+      <div class="rc-foot">占月生活费 12.3%。她说这是“给自己的颁奖典礼”，一年只办三四次。</div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="h3">同一笔钱，账本两侧</div>
+    <p>把账单翻过来看：钱的那一面是数字，情绪的那一面是得到与失去。三张账单合起来不到 900 元，却各自对应着完全不同的心理收益。</p>
+  </div>
+</section>
+
+<!-- ===== 04 情绪计量 ===== -->
+<section class="sec" id="s4">
+  <div class="eyebrow">04 记者体验实验</div>
+  <div class="reveal">
+    <h2 class="h2">我替你去花这三笔钱，<br>然后记录情绪曲线</h2>
+    <p>记者分别完成一次三类消费，用 1—10 分自评情绪值，在三个时间点记录：消费前、消费当下、三小时后。这不是心理学量表，只是一次笨拙的自我观测。</p>
+  </div>
+
+  <div class="meter reveal">
+    <div class="meter-tab">
+      <button class="mt on" data-k="a">① 一杯奶茶</button>
+      <button class="mt" data-k="b">② 一个盲盒</button>
+      <button class="mt" data-k="c">③ 两小时手作</button>
+    </div>
+    <div class="chart" id="chart"><div class="grid"></div></div>
+    <div class="stage-lb"><span>消费前</span><span>当下</span><span>三小时后</span></div>
+    <div class="takeaway" id="take"></div>
+  </div>
+
+  <div class="reveal">
+    <p>三次实验指向同一个结论：<strong>峰值高，不等于留得久。</strong>奶茶和盲盒的即时快感更强烈，落差也更快；手作的峰值不算高，但曲线更平，情绪停留得更久。</p>
+  </div>
+</section>
+
+<!-- ===== 05 对照访谈 ===== -->
+<section class="sec" id="s5">
+  <div class="eyebrow">05 对照访谈</div>
+  <div class="reveal">
+    <h2 class="h2">同样是情绪消费，<br>为什么有人悦己，有人内耗</h2>
+    <p>我们放弃复杂的压力对比实验，改用更笨也更真的方法：找两组同学坐下来聊——花完不后悔的，和花完就后悔的。</p>
+  </div>
+
+  <div class="vs reveal">
+    <div class="vs-a">
+      <span class="tag">A 组 · 适度悦己</span>
+      <ul>
+        <li>消费前有预算，也有上限</li>
+        <li>对“买到什么”有清醒预期</li>
+        <li>买完就翻篇，不反复回看订单</li>
+        <li>情绪低落时会先找人不找购物车</li>
+      </ul>
+      <div class="q">“我给自己定了一条线，一个月最多 300 块买开心。花完了就等下个月，反而花得更痛快。”</div>
+    </div>
+    <div class="vs-b">
+      <span class="tag">B 组 · 后悔内耗</span>
+      <ul>
+        <li>多在深夜、情绪高点突发下单</li>
+        <li>买完第一反应是“我为什么要买”</li>
+        <li>用过花呗、分期，或对家里隐瞒金额</li>
+        <li>空虚感来得比快乐更快</li>
+      </ul>
+      <div class="q">“拆完盒子那一分钟特别爽，然后就空了。我会把盒子藏进柜子，不想看见。”</div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <p>两组人的差别不在花多少钱，而在<strong>钱和情绪之间的顺序</strong>：A 组是“先照顾好情绪，再决定花不花”；B 组是“先用消费堵住情绪，再回头收拾账单”。</p>
+  </div>
+</section>
+
+<!-- ===== 06 循环 ===== -->
+<section class="sec" id="s6">
+  <div class="eyebrow">06 风险在哪里</div>
+  <div class="reveal">
+    <h2 class="h2">短暂快感之后，<br>是治愈，还是循环</h2>
+    <p>情绪消费有两面性：它确实能带来短期情绪增益，也确实可能滑向超支与更深的空虚。</p>
+  </div>
+
+  <div class="loopbox reveal">
+    <div class="loop">
+      <div class="loop-ring"></div>
+      <div class="node"><em>STEP 1</em>情绪低落<br>或情绪高涨</div>
+      <div class="arrow">→</div>
+      <div class="node"><em>STEP 2</em>下单<br>短暂愉悦</div>
+      <div class="arrow">→</div>
+      <div class="node"><em>STEP 3</em>快感回落<br>空虚与自责</div>
+    </div>
+    <p><b>然后呢？</b>下一次情绪来的时候，第一反应仍然是打开购物软件——这就是“消费—空虚—再消费”的闭环。打破它的，往往不是更强的意志力，而是别的东西：一次倾诉、一场运动、一个具体的目标。</p>
+  </div>
+</section>
+
+<!-- ===== 07 互动 ===== -->
+<section class="sec" id="s7">
+  <div class="eyebrow">07 交回给你</div>
+  <div class="reveal">
+    <h2 class="h2">最近一次，你为情绪花了多少钱？</h2>
+    <p>点一个选项，看看别人的答案。数据仅保存在你的设备上，用于本报道的互动取样。</p>
+  </div>
+  <div class="poll reveal" id="poll"></div>
+  <p class="poll-tip">本投票不联网、不上传，结果只在你自己的浏览器里累计。</p>
+</section>
+
+<!-- ===== 08 结尾 ===== -->
+<section class="end" id="s8">
+  <div class="reveal">
+    <p class="big-q">我们不做判断。<br>只想把这个问题交回给你——<br>你花出去的钱，<br>买到了你想要的那种心情吗？</p>
+    <p>情绪消费不是原罪，也不是解药。它更像一个温度计：量的不是钱包的厚度，而是这一刻，你有多需要被安慰。</p>
+    <div class="by">记者手记 · 2026 年 11 月</div>
+  </div>
+
+  <div class="method">
+    <div class="h4">报道方法</div>
+    <p>采访对象：本校及周边两所高校在读学生 28 人，其中深访 6 人（化名处理），覆盖大一至大四；场景观察：宿舍、食堂、校园超市、校园文创店、周边手作店 5 处；方法：账单追踪 + 体验式实验 + 对照访谈。</p>
+    <div class="h4">关于数据</div>
+    <p>文中账单金额、情绪自评分均为采访模板示例，用于呈现报道结构；正式发布前需替换为本组真实访谈记录。样本为便利抽样，不代表全体大学生。</p>
+    <div class="h4">延伸与取舍</div>
+    <p>SPA 水疗、塔罗占卜、医美体验等校外高成本情绪消费，因拍摄成本高、校园样本稀少，未列入主线，仅作现象提及。相关背景参考人民论坛网、中国青年报、人民日报关于青年情绪消费的公开报道。</p>
+    <p style="opacity:.7">本页为 H5 交互报道原型，插画为示意图，非现场影像。</p>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ===== 三类数据结构 ===== */
+var TYPES = {
+  a: {
+    tag: "01 / 即时补偿型",
+    title: "一杯奶茶，是我给自己按的暂停键",
+    img: "assets/typ1.jpg",
+    cap: "宿舍书桌 · 示意图",
+    kv: ["奶茶 15—25 元", "零食 5—20 元", "解压小玩具 9—39 元", "香薰挂件 15—40 元"],
+    scene: "宿舍 · 食堂 · 校园超市 · 便利店",
+    motive: "压力补偿 · 即时抚慰",
+    text: "发生在情绪最需要立刻被处理的时刻： deadline 前的深夜、被批评后的下午、降温的第一天。它的共同点是<b>单价低、立刻可得、不需要解释</b>——付钱和得到之间几乎没有延迟，情绪也就来不及继续下沉。",
+    nm: "小林 · 大二 · 广告学",
+    q: "“我不需要它解决什么，我只需要它现在就在。喝完这杯，我能把剩下的 PPT 做完。”"
+  },
+  b: {
+    tag: "02 / 身份认同型",
+    title: "吧唧不是纸片，是一群人的暗号",
+    img: "assets/typ2.jpg",
+    cap: "宿舍书桌 · 示意图",
+    kv: ["盲盒 39—99 元", "吧唧徽章 20—60 元", "亚克力立牌 40—200 元", "文创周边 30—150 元"],
+    scene: "宿舍书桌 · 校园文创店 · 二手交换群",
+    motive: "圈层归属 · 自我表达",
+    text: "这一类消费买的不是物件本身，而是<b>“我是谁、我和谁在一起”</b>。同款谷子、同场漫展、同一个小众爱好群，消费成为进入圈层的门票，也成为书桌上那块只对自己有意义的领地。",
+    nm: "阿哲 · 大三 · 英语",
+    q: "“室友不懂我为什么花 90 块买一张纸片。但群里有人和我一样懂，这就够了。”"
+  },
+  c: {
+    tag: "03 / 仪式奖励型",
+    title: "考完试那天，我给自己颁了个奖",
+    img: "assets/typ3.jpg",
+    cap: "校园周边手作店 · 示意图",
+    kv: ["演出门票 80—600 元", "手作 DIY 60—200 元", "会员付费 15—30 元/月", "生日仪式 100 元以上"],
+    scene: "周边手作店 · 剧场 · 线上账单追踪",
+    motive: "自我奖励 · 放大积极情绪",
+    text: "和补偿型不同，这一类的方向是<b>向上</b>：不是为了止住坏情绪，而是为了让好情绪被看见、被延长。它通常低频、有计划、有明确的“纪念日”属性，也更愿意留下痕迹——票根、杯底的刻字、截图。",
+    nm: "小舟 · 大四 · 新闻",
+    q: "“我买的不是两小时的演出，是一个‘我熬过来了’的凭证。”"
+  }
+};
+
+var cardsEl = document.getElementById("cards");
+function renderCard(k){
+  var t = TYPES[k];
+  cardsEl.innerHTML =
+    '<div class="card">' +
+      '<div class="eyebrow" style="margin-bottom:10px">' + t.tag + '</div>' +
+      '<h3 class="h3" style="margin-top:0">' + t.title + '</h3>' +
+      '<img src="' + t.img + '" alt="' + t.title + '">' +
+      '<div class="cap">' + t.cap + '</div>' +
+      '<div class="kv">' + t.kv.map(function(x,i){return '<span'+(i===0?' class="hi"':'')+'>'+x+'</span>';}).join("") + '</div>' +
+      '<p>' + t.text + '</p>' +
+      '<p style="font-size:12.5px;color:var(--ink-light);margin-bottom:0">典型场景：' + t.scene + '　｜　核心动机：' + t.motive + '</p>' +
+      '<div class="person"><div class="nm">' + t.nm + '</div><p>' + t.q + '</p></div>' +
+    '</div>';
+}
+renderCard("a");
+
+var tabs = document.querySelectorAll(".tab");
+tabs.forEach(function(b){
+  b.addEventListener("click", function(){
+    tabs.forEach(function(x){x.classList.remove("on")});
+    b.classList.add("on");
+    renderCard(b.dataset.k);
+  });
+});
+
+/* ===== 情绪计量 ===== */
+var METER = {
+  a: { name:"一杯奶茶 18 元", v:[4,7,5], note:"<b>峰值 7 分，回落到 5 分。</b>快感集中在喝下的十几分钟，三小时后只剩“还行”的余味——它抚平了情绪，但没有改变让你低落的那个原因。" },
+  b: { name:"一个盲盒 59 元", v:[5,8,4], note:"<b>峰值最高，回落也最狠。</b>拆盒那一下是全流程的情绪顶点；如果拆到重复款，三小时后的分数会低于消费前——这是唯一一次“越花越糟”的记录。" },
+  c: { name:"两小时手作 128 元", v:[4,7,7], note:"<b>峰值不高，但几乎不回落。</b>动手的过程占满了注意力，成品带回了宿舍、还留在桌上。钱的效用被拉长成了“一件我做的东西”。" }
+};
+var mk = "a";
+var chartEl = document.getElementById("chart");
+var takeEl = document.getElementById("take");
+
+function renderMeter(k){
+  var d = METER[k];
+  var html = '<div class="grid"><i style="top:25%"></i><i style="top:50%"></i><i style="top:75%"></i></div>';
+  d.v.forEach(function(v, i){
+    var h = (v / 10) * 100;
+    html += '<div class="col"><div class="bar b'+(i+1)+'" style="height:0"><span class="val">'+v+'</span></div></div>';
+  });
+  chartEl.innerHTML = html;
+  // 触发高度动画
+  requestAnimationFrame(function(){
+    setTimeout(function(){
+      var bars = chartEl.querySelectorAll(".bar");
+      bars.forEach(function(b, i){ b.style.height = (d.v[i] / 10) * 100 + "%"; });
+    }, 30);
+  });
+  takeEl.innerHTML = d.name + "：" + d.note;
+}
+renderMeter("a");
+
+document.querySelectorAll(".mt").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".mt").forEach(function(x){x.classList.remove("on")});
+    b.classList.add("on");
+    renderMeter(b.dataset.k);
+  });
+});
+
+/* ===== 互动投票 ===== */
+var POLL = [
+  {k:"a", label:"10 元以内　（一杯饮料、一包零食）"},
+  {k:"b", label:"10—50 元　（一次小玩具、周边小物）"},
+  {k:"c", label:"50—200 元　（一顿好的、一张票）"},
+  {k:"d", label:"200 元以上　（谷子、演出、大件仪式感）"}
+];
+var KEY = "emotion_spend_v1";
+var store = {};
+try { store = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ store = {}; }
+if(!store.counts) store.counts = {a:12, b:19, c:14, d:7};
+if(!store.mine) store.mine = null;
+
+var pollEl = document.getElementById("poll");
+function renderPoll(){
+  var total = 0;
+  POLL.forEach(function(o){ total += store.counts[o.k] || 0; });
+  pollEl.innerHTML = "";
+  POLL.forEach(function(o){
+    var n = store.counts[o.k] || 0;
+    var pct = total ? Math.round(n / total * 100) : 0;
+    var btn = document.createElement("button");
+    btn.className = "opt" + (store.mine ? " done" : "") + (store.mine === o.k ? " mine" : "");
+    btn.innerHTML = '<div class="fill"></div><span>' + o.label + '<em class="pct">' + pct + '%</em></span>';
+    btn.addEventListener("click", function(){
+      if(store.mine) return;
+      store.mine = o.k;
+      store.counts[o.k] = (store.counts[o.k] || 0) + 1;
+      try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e){}
+      renderPoll();
+    });
+    pollEl.appendChild(btn);
+    setTimeout(function(){ btn.querySelector(".fill").style.width = pct + "%"; }, 60);
+  });
+  if(store.mine){
+    var tip = document.createElement("p");
+    tip.className = "poll-tip";
+    tip.innerHTML = "已记录你的选择。样本基数 " + total + " 人（含本地示例数据），你属于其中这一格。";
+    pollEl.appendChild(tip);
+  }
+}
+renderPoll();
+
+/* ===== 滚动显现 ===== */
+var io = new IntersectionObserver(function(es){
+  es.forEach(function(e){ if(e.isIntersecting) e.target.classList.add("in"); });
+},{threshold:.12});
+document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+
+/* ===== 进度条 & 右侧导航 ===== */
+var bar = document.getElementById("bar");
+var dots = document.querySelectorAll("#rail i");
+var ids = ["hero","s1","s2","s3","s4","s5","s6","s7","s8"];
+function onScroll(){
+  var st = window.scrollY || document.documentElement.scrollTop;
+  var h = document.documentElement.scrollHeight - window.innerHeight;
+  bar.style.width = (h > 0 ? (st / h) * 100 : 0) + "%";
+  var cur = 0;
+  ids.forEach(function(id, i){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(el.getBoundingClientRect().top < window.innerHeight * 0.45) cur = i;
+  });
+  dots.forEach(function(d, i){ d.classList.toggle("on", i === cur); });
+}
+window.addEventListener("scroll", onScroll, {passive:true});
+onScroll();
+dots.forEach(function(d){
+  d.addEventListener("click", function(){
+    var el = document.getElementById(d.dataset.t);
+    if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+});
+</script>
+</body>
+</html>
